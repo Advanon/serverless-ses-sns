@@ -1,0 +1,25 @@
+{
+  "name": "serverless-ses-sns",
+  "version": "1.0.0",
+  "description": "Serverless plugin to add a SNS destination to a SES ConfigurationSet",
+  "main": "index.js",
+  "keywords": [
+    "serverless",
+    "SES",
+    "SNS"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Advanon/serverless-ses-sns.git"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "Advanon AG",
+  "license": "Apache License 2.0",
+  "devDependencies": {
+    "eslint": "^5.15.1",
+    "jest": "^24.1.0"
+  },
+  "dependencies": {}
+}
