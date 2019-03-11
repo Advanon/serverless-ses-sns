@@ -6,32 +6,43 @@ const {
 } = require('./src/aws');
 const { makeCreateSNSDestinationHook, makeRemoveSNSDestinationHook } = require('./src/plugin');
 
+const getClients = (serverless) => {
+    const provider = serverless.getProvider('aws');
+    const awsCredentials = provider.getCredentials();
+    const region = serverless.service.custom.snsDestination.region || awsCredentials.region;
+    const credentials = awsCredentials.credentials;
+
+    return {
+        ses: new provider.sdk.SES({ region, credentials }),
+        sns: new provider.sdk.SNS({ region, credentials })
+    }
+}
+
+const makeCreateHook = (serverless) => {
+    const { ses, sns } = getClients(serverless);
+    const createTopic = makeCreateTopic(sns);
+    const createOrUpdateSNSDestination = makeCreateOrUpdateSNSDestination(ses);
+
+    return makeCreateSNSDestinationHook(createTopic, createOrUpdateSNSDestination, serverless.cli);
+};
+
+const makeRemoveHook = (serverless) => {
+    const { ses, sns } = getClients(serverless);
+    const removeTopic = makeRemoveTopic(sns);
+    const removeSNSDestination = makeRemoveSNSDestination(ses);
+
+    return makeRemoveSNSDestinationHook(removeTopic, removeSNSDestination, serverless.cli);
+}
+
 class ServerlessSESConfigurationSetSNSDestination {
 
     constructor(serverless, options) {
         this.serverless = serverless;
         this.options = options;
 
-        const provider = this.serverless.getProvider('aws');
-        const awsCredentials = provider.getCredentials();
-        const region = this.serverless.service.custom.snsDestination.region || awsCredentials.region;
-        const credentials = awsCredentials.credentials;
-
-        const ses = new provider.sdk.SES({ region, credentials });
-        const sns = new provider.sdk.SNS({ region, credentials });
-
-        const createTopic = makeCreateTopic(sns);
-        const removeTopic = makeRemoveTopic(sns);
-        const createOrUpdateSNSDestination = makeCreateOrUpdateSNSDestination(ses);
-        const removeSNSDestination = makeRemoveSNSDestination(ses);
-
-        const logger = this.serverless.cli;
-        const createHook = makeCreateSNSDestinationHook(createTopic, createOrUpdateSNSDestination, logger);
-        const removeHook = makeRemoveSNSDestinationHook(removeTopic, removeSNSDestination, logger);
-
         this.hooks = {
-            'after:deploy:deploy': () => createHook(this.serverless.service),
-            'before:remove:remove': () => removeHook(this.serverless.service)
+            'after:deploy:deploy': () => makeCreateHook(this.serverless)(this.serverless.service),
+            'before:remove:remove': () => makeRemoveHook(this.serverless)(this.serverless.service)
         };
     }
 }
