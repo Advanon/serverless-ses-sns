@@ -40,7 +40,15 @@ class ServerlessSESConfigurationSetSNSDestination {
         this.serverless = serverless;
         this.options = options;
 
-        this.hooks = {
+        if (!serverless.service.custom.snsDestination) {
+            this.serverless.cli.log(`Missing configuration for plugin serverless-ses-sns`);
+        } else {
+            this.hooks = this.setupHooks();
+        }
+    }
+
+    setupHooks() {
+        return {
             'after:deploy:deploy': () => makeCreateHook(this.serverless)(this.serverless.service),
             'before:remove:remove': () => makeRemoveHook(this.serverless)(this.serverless.service)
         };
