@@ -1,6 +1,6 @@
 {
   "name": "serverless-ses-sns",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Serverless plugin to add a SNS destination to a SES ConfigurationSet",
   "main": "index.js",
   "keywords": [
