@@ -7,17 +7,24 @@ const makeCreateSNSDestinationHook = (createTopic, createOrUpdateSNSDestination,
         snsDestination.topicArn = TopicArn;
     }
 
-    const { events, topicArn, configurationSet } = snsDestination;
+    const { events, topicArn, configurationSets } = snsDestination;
     const destination = getDestinationName(service);
-    await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
-    logger.log(`SNS destination added to configurationSet ${configurationSet}`);
+    await Promise.all(
+        configurationSets.map(async configurationSet => {
+            await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
+            logger.log(`SNS destination added to configurationSet ${configurationSet}`);
+        }
+    ))
 };
 
 const makeRemoveSNSDestinationHook = (removeTopic, removeSNSDestination, logger) => async (service) => {
     const snsDestination = service.custom.snsDestination;
-
-    await removeSNSDestination(getDestinationName(service), snsDestination.configurationSet);
-    logger.log(`SNS destination removed from configurationSet ${snsDestination.configurationSet}`);
+    await Promise.all(
+        snsDestination.configurationSets.map(async configurationSet => {
+            await removeSNSDestination(getDestinationName(service), snsDestination.configurationSet);
+            logger.log(`SNS destination removed from configurationSet ${snsDestination.configurationSet}`);
+        })
+    )
 
     if (!snsDestination.topicArn) {
         const topic = getTopicName(service);
