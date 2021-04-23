@@ -7,9 +7,7 @@ const makeCreateSNSDestinationHook = (createTopic, createOrUpdateSNSDestination,
         snsDestination.topicArn = TopicArn;
     }
 
-    const { events, topicArn } = snsDestination;
-    const configurationSets = [ 'ct-configuration-set-stage', 'ct-campaign-configuration-set-stage']
-    console.log(snsDestination,'snsDestinationLog')
+    const { events, topicArn, configurationSets } = snsDestination;
     const destination = getDestinationName(service);
     await Promise.all(
         configurationSets.map(async configurationSet => {
@@ -22,9 +20,8 @@ const makeCreateSNSDestinationHook = (createTopic, createOrUpdateSNSDestination,
 
 const makeRemoveSNSDestinationHook = (removeTopic, removeSNSDestination, logger) => async (service) => {
     const snsDestination = service.custom.snsDestination;
-    const configurationSets = [ 'ct-configuration-set-stage', 'ct-campaign-configuration-set-stage']
     await Promise.all(
-        configurationSets.map(async configurationSet => {
+        snsDestination.configurationSets.map(async configurationSet => {
             await removeSNSDestination(getDestinationName(service), configurationSet);
             logger.log(`SNS destination removed from configurationSet ${configurationSet}`);
         })
