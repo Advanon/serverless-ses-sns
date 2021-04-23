@@ -7,23 +7,28 @@ const makeCreateSNSDestinationHook = (createTopic, createOrUpdateSNSDestination,
         snsDestination.topicArn = TopicArn;
     }
 
-    const { events, topicArn, configurationSets } = snsDestination;
+    const { events, topicArn } = snsDestination;
+    const configurationSets = [ 'ct-configuration-set-stage', 'ct-campaign-configuration-set-stage']
     console.log(snsDestination,'snsDestinationLog')
-    logger.log('debaging')
     const destination = getDestinationName(service);
-    configurationSets.map(async configurationSet => {
-        console.log(configurationSet,'configurationSetLog')
-        await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
-        logger.log(`SNS destination added to configurationSet ${configurationSet}`);
-    })
+    await Promise.all(
+        configurationSets.map(async configurationSet => {
+            console.log(configurationSet,'configurationSetLog')
+            await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
+            logger.log(`SNS destination added to configurationSet ${configurationSet}`);
+        }
+    ))
 };
 
 const makeRemoveSNSDestinationHook = (removeTopic, removeSNSDestination, logger) => async (service) => {
     const snsDestination = service.custom.snsDestination;
-    snsDestination.configurationSets.map(async configurationSet => {
-        await removeSNSDestination(getDestinationName(service), configurationSet);
-        logger.log(`SNS destination removed from configurationSet ${configurationSet}`);
-    })
+    const configurationSets = [ 'ct-configuration-set-stage', 'ct-campaign-configuration-set-stage']
+    await Promise.all(
+        configurationSets.map(async configurationSet => {
+            await removeSNSDestination(getDestinationName(service), configurationSet);
+            logger.log(`SNS destination removed from configurationSet ${configurationSet}`);
+        })
+    )
 
     if (!snsDestination.topicArn) {
         const topic = getTopicName(service);
