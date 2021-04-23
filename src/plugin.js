@@ -9,24 +9,21 @@ const makeCreateSNSDestinationHook = (createTopic, createOrUpdateSNSDestination,
 
     const { events, topicArn, configurationSets } = snsDestination;
     console.log(snsDestination,'snsDestinationLog')
+    logger.log('debaging')
     const destination = getDestinationName(service);
-    await Promise.all(
-        configurationSets.map(async configurationSet => {
-            console.log(configurationSet,'configurationSetLog')
-            await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
-            logger.log(`SNS destination added to configurationSet ${configurationSet}`);
-        }
-    ))
+    configurationSets.map(async configurationSet => {
+        console.log(configurationSet,'configurationSetLog')
+        await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
+        logger.log(`SNS destination added to configurationSet ${configurationSet}`);
+    })
 };
 
 const makeRemoveSNSDestinationHook = (removeTopic, removeSNSDestination, logger) => async (service) => {
     const snsDestination = service.custom.snsDestination;
-    await Promise.all(
-        snsDestination.configurationSets.map(async configurationSet => {
-            await removeSNSDestination(getDestinationName(service), configurationSet);
-            logger.log(`SNS destination removed from configurationSet ${configurationSet}`);
-        })
-    )
+    snsDestination.configurationSets.map(async configurationSet => {
+        await removeSNSDestination(getDestinationName(service), configurationSet);
+        logger.log(`SNS destination removed from configurationSet ${configurationSet}`);
+    })
 
     if (!snsDestination.topicArn) {
         const topic = getTopicName(service);
