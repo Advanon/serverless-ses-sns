@@ -21,8 +21,8 @@ const makeRemoveSNSDestinationHook = (removeTopic, removeSNSDestination, logger)
     const snsDestination = service.custom.snsDestination;
     await Promise.all(
         snsDestination.configurationSets.map(async configurationSet => {
-            await removeSNSDestination(getDestinationName(service), snsDestination.configurationSet);
-            logger.log(`SNS destination removed from configurationSet ${snsDestination.configurationSet}`);
+            await removeSNSDestination(getDestinationName(service), configurationSet);
+            logger.log(`SNS destination removed from configurationSet ${configurationSet}`);
         })
     )
 

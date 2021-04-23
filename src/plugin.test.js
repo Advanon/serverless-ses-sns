@@ -17,6 +17,7 @@ describe('plugin', () => {
                 provider,
                 custom: {
                     snsDestination: {
+                        configurationSets: [],
                         topicArn: 'arn:....'
                     }
                 }
@@ -34,7 +35,9 @@ describe('plugin', () => {
                 service,
                 provider,
                 custom: {
-                    snsDestination: {}
+                    snsDestination: {
+                        configurationSets: [],
+                    }
                 }
             });
 
@@ -53,6 +56,7 @@ describe('plugin', () => {
                 provider,
                 custom: {
                     snsDestination: {
+                        configurationSets: [],
                         topicArn: 'arn:....'
                     }
                 }
@@ -70,7 +74,9 @@ describe('plugin', () => {
                 service,
                 provider,
                 custom: {
-                    snsDestination: {}
+                    snsDestination: {
+                        configurationSets: []
+                    }
                 }
             });
 
