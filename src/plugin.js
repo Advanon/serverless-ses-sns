@@ -8,9 +8,11 @@ const makeCreateSNSDestinationHook = (createTopic, createOrUpdateSNSDestination,
     }
 
     const { events, topicArn, configurationSets } = snsDestination;
+    console.log(snsDestination,'snsDestinationLog')
     const destination = getDestinationName(service);
     await Promise.all(
         configurationSets.map(async configurationSet => {
+            console.log(configurationSet,'configurationSetLog')
             await createOrUpdateSNSDestination(destination, configurationSet, events, topicArn);
             logger.log(`SNS destination added to configurationSet ${configurationSet}`);
         }
