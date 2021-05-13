@@ -29,6 +29,7 @@ const makeCreateOrUpdateSNSDestination = (ses) => async (name, configurationSet,
             }
         }
     };
+
     const isAlreadyPresent = await isSNSDestinationAlreadyPresent(ses, configurationSet, name);
     if (isAlreadyPresent) {
         return ses.updateConfigurationSetEventDestination(params).promise();
